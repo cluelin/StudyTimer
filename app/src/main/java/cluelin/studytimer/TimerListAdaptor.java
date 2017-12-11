@@ -22,6 +22,9 @@ public class TimerListAdaptor extends BaseAdapter {
     LayoutInflater inf;
     ArrayList<StudyItem> studyItems;
 
+    public static void setCursor(int cursor) {
+        TimerListAdaptor.cursor = cursor;
+    }
 
     public TimerListAdaptor(Context context, int layout, ArrayList<StudyItem> studyItems) {
         this.context = context;
@@ -52,33 +55,41 @@ public class TimerListAdaptor extends BaseAdapter {
         }
 
         EditText itemName = (EditText) convertView.findViewById(R.id.itemName);
-        TextView stopWatch = (TextView) convertView.findViewById(R.id.recordingTime);
+        TextView stopWatchTextView = (TextView) convertView.findViewById(R.id.recordingTime);
 
         StudyItem studyItem = (StudyItem) getItem(position);
 
         itemName.setHint(studyItem.getItemName());
-        stopWatch.setText(studyItem.getRecordingTime());
+
+        long ell =studyItem.getRecordingTime();
+        String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60, (ell/1000)%60, (ell %1000)/10);
+        stopWatchTextView.setText(sEll);
 
 
         // 스톱워치 부분을 터치 했을 때 이벤트 발생
-        stopWatch.setOnClickListener(new View.OnClickListener() {
+        stopWatchTextView.setOnClickListener(new View.OnClickListener() {
 
 
             @Override
             public void onClick(View v) {
 
-                if (cursor != position && cursor != -1  ) {
-                    StudyItem studyItem = (StudyItem) getItem(cursor);
-                    StopWatch stopWatch = studyItem.getStopWatch();
-                    stopWatch.stop();
+                //이전에 작동하던 스톱워치가 아니면서
+                //처음 시작하는 값이 아닌경우
+                //이전 스톱워치를 정지시킨다.
+                if (cursor != position) {
+                    removeCursor();
                 }
 
 
-                StudyItem studyItem = (StudyItem) getItem(position);
+                //현재값을 커서로 지정해주고.
+                //현재 타이머를 작동시킨다.
                 cursor = position;
-                StopWatch stopWatch = studyItem.getStopWatch();
+                StudyItem studyItem = (StudyItem) getItem(position);
+                studyItem.setTargetStopWatch((TextView)v);
 
-                stopWatch.setTargetStopWatch((TextView) v);
+                StopWatch stopWatch = studyItem.getStopWatch();
+                stopWatch.setmTimer(studyItem.getTimerHandler());
+
 
                 stopWatch.start();
 
@@ -88,5 +99,15 @@ public class TimerListAdaptor extends BaseAdapter {
 
 
         return convertView;
+    }
+
+    public void removeCursor(){
+
+        if(cursor != -1){
+            StudyItem studyItem = (StudyItem) getItem(cursor);
+            StopWatch stopWatch = studyItem.getStopWatch();
+            stopWatch.stop();
+        }
+
     }
 }
