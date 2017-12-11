@@ -9,8 +9,12 @@ public class StudyItem {
     int timerID;
     String itemName = "새로운 항목을 입력해주세요.";
     String recordingTime = "00:00:00";
+    StopWatch stopWatch = new StopWatch();
 
 
+    public StopWatch getStopWatch() {
+        return stopWatch;
+    }
 
     public String getItemName() {
         return itemName;

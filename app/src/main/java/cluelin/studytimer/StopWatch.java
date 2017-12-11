@@ -2,6 +2,8 @@ package cluelin.studytimer;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
+import android.widget.TextView;
 
 /**
  * Created by cluel on 2017-12-10.
@@ -9,7 +11,7 @@ import android.os.SystemClock;
 
 public class StopWatch {
 
-    private static StopWatch instance = null;
+
 
     //스톱워치의 상태를 위한 상수
 
@@ -25,25 +27,41 @@ public class StopWatch {
 
     long mPauseTime;
 
-    int mSplitCount;
 
+    TextView targetStopWatch;
 
-//싱글톤
-    private StopWatch(){
-
+    public StopWatch(){
 
     }
 
-    public static StopWatch getInstance(){
+    Handler mTimer = new Handler(){
 
-        if(instance == null){
-            instance = new StopWatch();
+        public void setTextView(TextView textView){
+            targetStopWatch = textView;
         }
+        //핸들러는 기본적으로 handleMessage에서 처리한다.
 
-        return instance;
+        public void handleMessage(android.os.Message msg) {
 
+            //텍스트뷰를 수정해준다.
+
+            targetStopWatch.setText(getEllapse());
+
+            //메시지를 다시 보낸다.
+
+            mTimer.sendEmptyMessage(0);//0은 메시지를 구분하기 위한 것
+
+        };
+
+    };
+
+    public TextView getTargetStopWatch() {
+        return targetStopWatch;
     }
 
+    public void setTargetStopWatch(TextView targetStopWatch) {
+        this.targetStopWatch = targetStopWatch;
+    }
 
     String getEllapse(){
 
@@ -51,6 +69,7 @@ public class StopWatch {
 
         long ell = now - mBaseTime;//현재 시간과 지난 시간을 빼서 ell값을 구하고
 
+        Log.d("태그", " : "+now + " : "+ mBaseTime);
         //아래에서 포맷을 예쁘게 바꾼다음 리턴해준다.
 
         String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60, (ell/1000)%60, (ell %1000)/10);
@@ -60,24 +79,38 @@ public class StopWatch {
     }
 
 
-    public long startWatch(Handler mTimer){
+    public void start(){
 
 
         //타이머의 상태에 따라서 동작이 분기됨.
         switch (mStatus){
             case IDLE:
                 mStatus = RUNNING;
-                return SystemClock.elapsedRealtime();
+                mBaseTime = SystemClock.elapsedRealtime();
+                mTimer.sendEmptyMessage(0);
+
+                break;
             case RUNNING:
+                mTimer.removeMessages(0);
+                mPauseTime = SystemClock.elapsedRealtime();
                 mStatus = PAUSE;
-                return SystemClock.elapsedRealtime();
+                break;
             case PAUSE:
-
-
+                mBaseTime += (SystemClock.elapsedRealtime() - mPauseTime);
+                mTimer.sendEmptyMessage(0);
+                mStatus = RUNNING;
+                break;
         }
 
 
-        return 0;
+
+    }
+
+    public void stop(){
+        mTimer.removeMessages(0);
+        mPauseTime = SystemClock.elapsedRealtime();
+        mStatus = PAUSE;
+
     }
 
 
