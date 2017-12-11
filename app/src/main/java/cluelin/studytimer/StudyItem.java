@@ -5,8 +5,12 @@ package cluelin.studytimer;
  */
 
 public class StudyItem {
+
+    int timerID;
     String itemName = "새로운 항목을 입력해주세요.";
-    String stopWatch = "00:00:00";
+    String recordingTime = "00:00:00";
+
+
 
     public String getItemName() {
         return itemName;
@@ -16,11 +20,19 @@ public class StudyItem {
         this.itemName = itemName;
     }
 
-    public String getStopWatch() {
-        return stopWatch;
+    public String getRecordingTime() {
+        return recordingTime;
     }
 
-    public void setStopWatch(String stopWatch) {
-        this.stopWatch = stopWatch;
+    public void setRecordingTime(String recordingTime) {
+        this.recordingTime = recordingTime;
+    }
+
+    public int getTimerID() {
+        return timerID;
+    }
+
+    public void setTimerID(int timerID) {
+        this.timerID = timerID;
     }
 }
