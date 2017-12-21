@@ -3,14 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#FFFFFFFF"
     android:weightSum="1">
 
     <ListView
-        android:id="@+id/timer_list_view"
+        android:id="@+id/stopwatch_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:dividerHeight="30dp">
+        android:background="#FFFFFF"
+        >
 
     </ListView>
 
@@ -21,12 +23,6 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="toggleStopWatch"
-            android:text="TextView" />
 
         <Button
             android:id="@+id/button2"

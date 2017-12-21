@@ -1,27 +1,15 @@
 package cluelin.studytimer;
 
-import android.app.Notification;
-import android.content.Context;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -30,8 +18,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     //timer 객체 리스트.
-    ArrayList<StudyItem> timerItems = new ArrayList<>();
-    TimerListAdaptor timerListAdapter;   //타이머 리스트에 붙여줄 어댑터.
+    ArrayList<StudyItem> stopWatchItems = new ArrayList<>();
+    TimerListAdaptor stopWatchListAdapter;   //타이머 리스트에 붙여줄 어댑터.
 
     final String COUNT = "COUNT";
     final String RECORD_TIME = "RECORD_TIME";
@@ -44,10 +32,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        timerListAdapter = new TimerListAdaptor(this, R.layout.new_timer_item, timerItems);
+        stopWatchListAdapter = new TimerListAdaptor(this, R.layout.new_stopwatch_item, stopWatchItems);
 
-        ListView timerList = (ListView) findViewById(R.id.timer_list_view);
-        timerList.setAdapter(timerListAdapter);
+        ListView stopWatchListView = (ListView) findViewById(R.id.stopwatch_list_view);
+        stopWatchListView.setAdapter(stopWatchListAdapter);
 
 
 
@@ -64,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 StudyItem studyItem = new StudyItem();
                 studyItem.setRecordingTime(Long.parseLong(recordTimes.get(i)));
                 studyItem.setItemName(itemNames.get(i));
-                timerItems.add(studyItem);
+                stopWatchItems.add(studyItem);
             }
 
         }else{
@@ -83,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
                     studyItem.setRecordingTime(initialTime);
                     studyItem.getStopWatch().setInitialTime(initialTime);
 
-                    timerItems.add(studyItem);
+                    stopWatchItems.add(studyItem);
                 }
 
                 TimerListAdaptor.setCursor(-1);
-                timerListAdapter.notifyDataSetChanged();
+                stopWatchListAdapter.notifyDataSetChanged();
 
 
             } catch (FileNotFoundException fileNotFoundException) {
@@ -108,15 +96,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
 
         Log.d("태그", "ondestroy");
-        timerListAdapter.removeCursor();
+        stopWatchListAdapter.removeCursor();
 
-        int itemCount = timerItems.size();
+        int itemCount = stopWatchItems.size();
         ArrayList<String> RecordingTimes = new ArrayList<>();
         ArrayList<String> itemNames = new ArrayList<>();
 
         for (int i = 0; i < itemCount; i++) {
-            itemNames.add(timerItems.get(i).getItemName());
-            RecordingTimes.add(((Long)timerItems.get(i).getRecordingTime()).toString());
+            itemNames.add(stopWatchItems.get(i).getItemName());
+            RecordingTimes.add(((Long) stopWatchItems.get(i).getRecordingTime()).toString());
         }
 
 
@@ -144,8 +132,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
 
-
-
         super.onStop();
     }
 
@@ -158,13 +144,13 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
 
         Log.d("태그", "onsaveInstance");
-        int itemCount = timerItems.size();
+        int itemCount = stopWatchItems.size();
         ArrayList<String> RecordingTimes = new ArrayList<>();
         ArrayList<String> itemNames = new ArrayList<>();
 
         for (int i = 0; i < itemCount; i++) {
-            RecordingTimes.add(((Long)timerItems.get(i).getRecordingTime()).toString());
-            itemNames.add(timerItems.get(i).getItemName());
+            RecordingTimes.add(((Long) stopWatchItems.get(i).getRecordingTime()).toString());
+            itemNames.add(stopWatchItems.get(i).getItemName());
         }
 
         outState.putInt(COUNT, itemCount);
@@ -178,9 +164,9 @@ public class MainActivity extends AppCompatActivity {
     //on touch event Handler Add Item on XML.
     public void addTask(View v) {
 
-        timerItems.add(new StudyItem());
+        stopWatchItems.add(new StudyItem());
         //list item 변경을 알려줌.
-        timerListAdapter.notifyDataSetChanged();
+        stopWatchListAdapter.notifyDataSetChanged();
 
     }
 

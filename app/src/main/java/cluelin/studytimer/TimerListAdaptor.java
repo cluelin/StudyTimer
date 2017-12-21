@@ -62,7 +62,9 @@ public class TimerListAdaptor extends BaseAdapter {
         itemName.setHint(studyItem.getItemName());
 
         long ell =studyItem.getRecordingTime();
-        String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60, (ell/1000)%60, (ell %1000)/10);
+
+        //시 분 초 로 나눠준다. ell 은
+        String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60 / 60, ell / 1000 / 60 % 60, (ell/1000)%60);
         stopWatchTextView.setText(sEll);
 
 
