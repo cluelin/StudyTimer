@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
 
         <Button
@@ -31,6 +31,13 @@
             android:gravity="center"
             android:onClick="addTask"
             android:text="항목 추가" />
+
+        <Button
+            android:id="@+id/saveBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="save"
+            android:onClick="endDay"/>
 
 
     </LinearLayout>

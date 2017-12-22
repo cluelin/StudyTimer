@@ -1,5 +1,6 @@
 package cluelin.studytimer;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +13,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
     final String ITEM_NAME = "itemName";
 
     final String FILE_NAME = "savefile.txt";
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < count; i++) {
                 StudyItem studyItem = new StudyItem();
-                studyItem.setRecordingTime(Long.parseLong(recordTimes.get(i)));
+
+                Log.d("tag", "recordTimes.get(i) : " + recordTimes.get(i));
+                studyItem.getStopWatch().setRecordingTime(Long.parseLong(recordTimes.get(i)));
                 studyItem.setItemName(itemNames.get(i));
                 stopWatchItems.add(studyItem);
             }
@@ -68,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     studyItem.setItemName(in.readLine());
 
                     long initialTime = Long.parseLong(in.readLine());
-                    studyItem.setRecordingTime(initialTime);
+                    studyItem.getStopWatch().setRecordingTime(initialTime);
                     studyItem.getStopWatch().setInitialTime(initialTime);
 
                     stopWatchItems.add(studyItem);
@@ -93,9 +101,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //종료되기전 가지고잇던 각 아이템의 이름과 스톱워치의 시간을 기록해서
+    //파일에 저장해둔다.
     protected void onDestroy() {
 
         Log.d("태그", "ondestroy");
+
+        saveTask(FILE_NAME);
+
+
+        super.onDestroy();
+
+    }
+
+
+
+    void saveTask(String fileName){
         stopWatchListAdapter.removeCursor();
 
         int itemCount = stopWatchItems.size();
@@ -104,13 +125,11 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < itemCount; i++) {
             itemNames.add(stopWatchItems.get(i).getItemName());
-            RecordingTimes.add(((Long) stopWatchItems.get(i).getRecordingTime()).toString());
+            RecordingTimes.add(((Long) stopWatchItems.get(i).getStopWatch().getRecordingTime()).toString());
         }
 
-
-
         try {
-            PrintWriter out = new PrintWriter(new File(this.getFilesDir(), FILE_NAME));
+            PrintWriter out = new PrintWriter(new File(this.getFilesDir(), fileName));
 
             out.write(itemCount);
 
@@ -123,10 +142,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException ioexception) {
             ioexception.printStackTrace();
         }
-
-
-        super.onDestroy();
-
     }
 
     @Override
@@ -149,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> itemNames = new ArrayList<>();
 
         for (int i = 0; i < itemCount; i++) {
-            RecordingTimes.add(((Long) stopWatchItems.get(i).getRecordingTime()).toString());
+            RecordingTimes.add(((Long) stopWatchItems.get(i).getStopWatch().getRecordingTime()).toString());
             itemNames.add(stopWatchItems.get(i).getItemName());
         }
 
@@ -167,6 +182,27 @@ public class MainActivity extends AppCompatActivity {
         stopWatchItems.add(new StudyItem());
         //list item 변경을 알려줌.
         stopWatchListAdapter.notifyDataSetChanged();
+
+    }
+
+
+    //하루가 끝나고 그날 공부한 목록과 시간을 저장하는 기능.
+    public void endDay(View v){
+
+        long now = System.currentTimeMillis();
+
+        Date date = new Date(now);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH-mm");
+
+        String getTime = sdf.format(date);
+
+        //1. 저장.
+        saveTask(getTime);
+
+        //2. 삭제 (초기화)
+        stopWatchListAdapter.initialize();
+
 
     }
 

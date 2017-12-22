@@ -12,7 +12,6 @@ public class StudyItem {
 
 
     String itemName = "새로운 항목을 입력해주세요.";
-    long recordingTime;
     StopWatch stopWatch = new StopWatch();
     TextView targetStopWatch;
 
@@ -23,10 +22,10 @@ public class StudyItem {
 
             //텍스트뷰를 수정해준다.
 
-            long ell = getEllapse();
+            long ell = getStopWatch().getEllapse();
 
             //경과한 시간 저장.
-            setRecordingTime(ell);
+            stopWatch.setRecordingTime(ell);
 
             //경과한 시간을 포맷후 textview변경.
             String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60 / 60, ell / 1000 / 60 % 60, (ell/1000)%60);
@@ -37,9 +36,6 @@ public class StudyItem {
             timerHandler.sendEmptyMessage(0);//0은 메시지를 구분하기 위한 것
 
         }
-
-        ;
-
     };
 
 
@@ -56,28 +52,13 @@ public class StudyItem {
         return stopWatch;
     }
 
-    public long getRecordingTime() {
-        return recordingTime;
-    }
-
-    public void setRecordingTime(long recordingTime) {
-        this.recordingTime = recordingTime;
-    }
 
     public void setTargetStopWatch(TextView targetStopWatch) {
         this.targetStopWatch = targetStopWatch;
     }
 
 
-    long getEllapse() {
 
-        long now = SystemClock.elapsedRealtime();
-
-        long ell = now - stopWatch.getBaseTime();//현재 시간과 지난 시간을 빼서 ell값을 구하고
-
-        return ell;
-
-    }
 
     public Handler getTimerHandler() {
         return timerHandler;

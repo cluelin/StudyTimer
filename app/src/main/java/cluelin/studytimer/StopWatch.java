@@ -22,6 +22,8 @@ public class StopWatch{
 
     int mStatus = IDLE;//처음 상태는 IDLE
 
+    long recordingTime;
+
     long mBaseTime;
 
     long mPauseTime;
@@ -30,8 +32,18 @@ public class StopWatch{
 
     Handler mTimer;
 
-    public StopWatch(){
 
+    public String getStringTime(){
+        return String.format("%02d:%02d:%02d",
+                recordingTime / 1000 / 60 / 60, recordingTime / 1000 / 60 % 60, (recordingTime/1000)%60);
+    }
+
+    public long getRecordingTime() {
+        return recordingTime;
+    }
+
+    public void setRecordingTime(long recordingTime) {
+        this.recordingTime = recordingTime;
     }
 
     public void setInitialTime(long initialTime) {
@@ -78,6 +90,16 @@ public class StopWatch{
         mTimer.removeMessages(0);
         mPauseTime = SystemClock.elapsedRealtime();
         mStatus = PAUSE;
+
+    }
+
+    long getEllapse() {
+
+        long now = SystemClock.elapsedRealtime();
+
+        long ell = now - getBaseTime();//현재 시간과 지난 시간을 빼서 ell값을 구하고
+
+        return ell;
 
     }
 

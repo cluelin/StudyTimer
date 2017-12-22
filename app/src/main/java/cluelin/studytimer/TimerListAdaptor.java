@@ -22,6 +22,9 @@ public class TimerListAdaptor extends BaseAdapter {
     LayoutInflater inf;
     ArrayList<StudyItem> studyItems;
 
+
+
+
     public static void setCursor(int cursor) {
         TimerListAdaptor.cursor = cursor;
     }
@@ -54,17 +57,19 @@ public class TimerListAdaptor extends BaseAdapter {
             convertView = inf.inflate(layout, null);
         }
 
+        //각 뷰의 초기 설정을 해준다.
+        //실질적으로 보여지는 각 행은 convertView에 담겨진다.
+
         EditText itemName = (EditText) convertView.findViewById(R.id.itemName);
         TextView stopWatchTextView = (TextView) convertView.findViewById(R.id.recordingTime);
 
         StudyItem studyItem = (StudyItem) getItem(position);
-
         itemName.setHint(studyItem.getItemName());
 
-        long ell =studyItem.getRecordingTime();
+        long ell =studyItem.getStopWatch().getRecordingTime();
 
-        //시 분 초 로 나눠준다. ell 은
-        String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60 / 60, ell / 1000 / 60 % 60, (ell/1000)%60);
+        //시 분 초 로 나눠준다.
+        String sEll = studyItem.getStopWatch().getStringTime();
         stopWatchTextView.setText(sEll);
 
 
@@ -92,7 +97,6 @@ public class TimerListAdaptor extends BaseAdapter {
                 StopWatch stopWatch = studyItem.getStopWatch();
                 stopWatch.setmTimer(studyItem.getTimerHandler());
 
-
                 stopWatch.start();
 
 
@@ -112,4 +116,13 @@ public class TimerListAdaptor extends BaseAdapter {
         }
 
     }
+
+    public void initialize(){
+        studyItems.clear();
+
+        cursor = -1;
+        notifyDataSetChanged();
+    }
+
+
 }
