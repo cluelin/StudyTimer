@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:layout_margin="10dp"
         android:background="#FFFFFF"
         >
 
@@ -38,6 +39,13 @@
             android:layout_height="wrap_content"
             android:text="save"
             android:onClick="endDay"/>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="log보기"
+            android:onClick="showLog"/>
 
 
     </LinearLayout>

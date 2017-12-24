@@ -1,6 +1,11 @@
 package cluelin.studytimer;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +26,6 @@ public class TimerListAdaptor extends BaseAdapter {
     int layout;
     LayoutInflater inf;
     ArrayList<StudyItem> studyItems;
-
-
 
 
     public static void setCursor(int cursor) {
@@ -60,18 +63,43 @@ public class TimerListAdaptor extends BaseAdapter {
         //각 뷰의 초기 설정을 해준다.
         //실질적으로 보여지는 각 행은 convertView에 담겨진다.
 
-        EditText itemName = (EditText) convertView.findViewById(R.id.itemName);
+        final EditText itemName = (EditText) convertView.findViewById(R.id.itemName);
         TextView stopWatchTextView = (TextView) convertView.findViewById(R.id.recordingTime);
 
-        StudyItem studyItem = (StudyItem) getItem(position);
+        final StudyItem studyItem = (StudyItem) getItem(position);
         itemName.setHint(studyItem.getItemName());
 
-        long ell =studyItem.getStopWatch().getRecordingTime();
+        long ell = studyItem.getStopWatch().getRecordingTime();
 
         //시 분 초 로 나눠준다.
         String sEll = studyItem.getStopWatch().getStringTime();
         stopWatchTextView.setText(sEll);
 
+
+        itemName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                studyItem.setItemName(itemName.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
+        stopWatchTextView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return false;
+            }
+        });
 
         // 스톱워치 부분을 터치 했을 때 이벤트 발생
         stopWatchTextView.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +120,7 @@ public class TimerListAdaptor extends BaseAdapter {
                 //현재 타이머를 작동시킨다.
                 cursor = position;
                 StudyItem studyItem = (StudyItem) getItem(position);
-                studyItem.setTargetStopWatch((TextView)v);
+                studyItem.setTargetStopWatch((TextView) v);
 
                 StopWatch stopWatch = studyItem.getStopWatch();
                 stopWatch.setmTimer(studyItem.getTimerHandler());
@@ -107,9 +135,9 @@ public class TimerListAdaptor extends BaseAdapter {
         return convertView;
     }
 
-    public void removeCursor(){
+    public void removeCursor() {
 
-        if(cursor != -1){
+        if (cursor != -1) {
             StudyItem studyItem = (StudyItem) getItem(cursor);
             StopWatch stopWatch = studyItem.getStopWatch();
             stopWatch.stop();
@@ -117,10 +145,15 @@ public class TimerListAdaptor extends BaseAdapter {
 
     }
 
-    public void initialize(){
+    public void initialize() {
         studyItems.clear();
 
         cursor = -1;
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(int position) {
+        studyItems.remove(position);
         notifyDataSetChanged();
     }
 
