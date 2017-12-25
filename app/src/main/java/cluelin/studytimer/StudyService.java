@@ -25,7 +25,9 @@ public class StudyService extends Service {
 
         //종료되기전 가지고잇던 각 아이템의 이름과 스톱워치의 시간을 기록해서
         //파일에 저장해둔다.
-        saveTask(FILE_NAME);
+
+        SingleTon SINGLE_TON = SingleTon.getInstance();
+        SINGLE_TON.saveTask(SINGLE_TON.FILE_NAME);
 //        super.onTaskRemoved(rootIntent);
     }
 }

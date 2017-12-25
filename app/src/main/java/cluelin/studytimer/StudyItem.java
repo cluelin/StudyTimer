@@ -28,7 +28,7 @@ public class StudyItem {
             stopWatch.setRecordingTime(ell);
 
             //경과한 시간을 포맷후 textview변경.
-            String sEll = String.format("%02d:%02d:%02d", ell / 1000 / 60 / 60, ell / 1000 / 60 % 60, (ell/1000)%60);
+            String sEll = stopWatch.getStringTime(ell);
             targetStopWatch.setText(sEll);
 
 

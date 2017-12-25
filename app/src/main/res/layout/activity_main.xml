@@ -30,7 +30,7 @@
             android:layout_width="194dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:onClick="addTask"
+            android:onClick="onClickAddItem"
             android:text="항목 추가" />
 
         <Button
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="save"
-            android:onClick="endDay"/>
+            android:onClick="onClickSave"/>
 
 
         <Button

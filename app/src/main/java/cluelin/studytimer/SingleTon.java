@@ -19,7 +19,15 @@ public class SingleTon {
 
     public static final int LOAD_PREVIOUS_STOP_WATCH = 991;
     public static final String TARGET_FILE = "targetFile";
+    final String FILE_NAME = "savefile.txt";
 
+
+    //timer 객체 리스트.
+    TimerListAdaptor stopWatchListAdapter;
+
+
+
+    final String LOG_DIR = "log";
 
 
     Context context;
@@ -39,11 +47,46 @@ public class SingleTon {
 
     void setContext(Context context){
         this.context = context;
+
     }
 
 
+    public void setStopWatchListAdapter(TimerListAdaptor stopWatchListAdapter) {
+        this.stopWatchListAdapter = stopWatchListAdapter;
+    }
 
-    void loadWatchFromFile(File file, ArrayList<StudyItem> stopWatchItems, TimerListAdaptor stopWatchListAdapter) {
+    void saveTask(String fileName) {
+
+        Log.d("태그", "saveTask");
+        stopWatchListAdapter.removeCursor();
+
+        int itemCount = stopWatchListAdapter.getCount();
+        ArrayList<String> RecordingTimes = new ArrayList<>();
+        ArrayList<String> itemNames = new ArrayList<>();
+
+        for (int i = 0; i < itemCount; i++) {
+            itemNames.add(stopWatchListAdapter.getItem(i).getItemName());
+            RecordingTimes.add(((Long) stopWatchListAdapter.getItem(i).getStopWatch().getRecordingTime()).toString());
+        }
+
+        try {
+            Log.d("태그", "경로 : " + context.getFilesDir() + fileName);
+            PrintWriter out = new PrintWriter(new File(context.getFilesDir(), fileName));
+
+            out.write(itemCount);
+
+            for (int i = 0; i < itemCount; i++) {
+                out.println(itemNames.get(i));
+                out.println(RecordingTimes.get(i));
+            }
+
+            out.close();
+        } catch (IOException ioexception) {
+            ioexception.printStackTrace();
+        }
+    }
+
+    void loadWatchFromFile(File file, TimerListAdaptor stopWatchListAdapter) {
 
         Log.d("태그", "loadWatchFromFile");
 
@@ -65,10 +108,10 @@ public class SingleTon {
                     studyItem.getStopWatch().setRecordingTime(initialTime);
                     studyItem.getStopWatch().setInitialTime(initialTime);
 
-                    stopWatchItems.add(studyItem);
+                    stopWatchListAdapter.addItem(studyItem);
                 }
 
-                TimerListAdaptor.setCursor(-1);
+                TimerListAdaptor.setCURSOR(-1);
                 stopWatchListAdapter.notifyDataSetChanged();
 
 
