@@ -19,7 +19,7 @@ public class SingleTon {
 
     public static final int LOAD_PREVIOUS_STOP_WATCH = 991;
     public static final String TARGET_FILE = "targetFile";
-    final String FILE_NAME = "savefile.txt";
+    public static final String FILE_NAME = "savefile.txt";
 
 
     //timer 객체 리스트.
@@ -33,6 +33,9 @@ public class SingleTon {
     Context context;
 
     static SingleTon instance = null;
+
+
+
 
     private SingleTon(){
 
@@ -58,15 +61,15 @@ public class SingleTon {
     void saveTask(String fileName) {
 
         Log.d("태그", "saveTask");
-        stopWatchListAdapter.removeCursor();
+
 
         int itemCount = stopWatchListAdapter.getCount();
         ArrayList<String> RecordingTimes = new ArrayList<>();
         ArrayList<String> itemNames = new ArrayList<>();
 
         for (int i = 0; i < itemCount; i++) {
-            itemNames.add(stopWatchListAdapter.getItem(i).getItemName());
-            RecordingTimes.add(((Long) stopWatchListAdapter.getItem(i).getStopWatch().getRecordingTime()).toString());
+            itemNames.add("" + stopWatchListAdapter.getItem(i).getItemName());
+            RecordingTimes.add(((Long) stopWatchListAdapter.getItem(i).getStopWatch().getEllapse()).toString());
         }
 
         try {
@@ -93,6 +96,8 @@ public class SingleTon {
         try {
 
             if(file.exists()){
+
+
                 BufferedReader in = new BufferedReader(new FileReader(file));
                 int count = in.read();
 
@@ -105,13 +110,16 @@ public class SingleTon {
                     Log.d("태그", "getItemName : " + studyItem.getItemName());
 
                     long initialTime = Long.parseLong(in.readLine());
-                    studyItem.getStopWatch().setRecordingTime(initialTime);
+
+                    Log.d("태그", "getItemTime : " + studyItem.getStopWatch().getStringTime(initialTime));
+
+
                     studyItem.getStopWatch().setInitialTime(initialTime);
 
                     stopWatchListAdapter.addItem(studyItem);
                 }
 
-                TimerListAdaptor.setCURSOR(-1);
+                TimerListAdaptor.CURSOR = -1;
                 stopWatchListAdapter.notifyDataSetChanged();
 
 

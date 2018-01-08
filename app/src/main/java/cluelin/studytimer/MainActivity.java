@@ -3,7 +3,7 @@ package cluelin.studytimer;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -21,15 +21,25 @@ public class MainActivity extends AppCompatActivity {
     //timer 객체 리스트.
     TimerListAdaptor stopWatchListAdapter;   //타이머 리스트에 붙여줄 어댑터.
 
+
+    //onSaveInstanceState restoreInstanceState용 상수.
     final String CURSOR = "CURSOR";
     final String COUNT = "COUNT";
     final String BASE_TIME = "BASE_TIME";
     final String ITEM_NAME = "itemName";
 
 
+    //로그 파일 저장 경로
     final String LOG_DIR = "log";
 
     final SingleTon SINGLE_TON = SingleTon.getInstance();
+
+
+    boolean saveInstanceState = false;
+    boolean ON_STOP = false;
+    int cursor;
+
+    Handler handler;
 
 
     @Override
@@ -109,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        handler = stopWatchListAdapter.getTimerHandler();
     }
 
     @Override
@@ -126,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
             Log.d("태그", "동작안함 중지");
 
             SINGLE_TON.saveTask(SINGLE_TON.FILE_NAME);
+            stopWatchListAdapter.clearAdaptor();
+
             super.onBackPressed();
         }
 
@@ -147,13 +161,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostResume() {
-        Log.d("태그", "생명주기 : onResume");
-        super.onPostResume();
-
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
 
@@ -165,11 +172,38 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("태그", "생명주기 : onStop");
 
+        Log.d("태그", "StopWatch.STATUS : " + StopWatch.STATUS);
+        Log.d("태그", "stopWatchListAdapter.CURSOR : " + stopWatchListAdapter.CURSOR);
+
+
+
+        if(StopWatch.STATUS == StopWatch.RUNNING){
+            stopWatchListAdapter.getItem(stopWatchListAdapter.CURSOR).getStopWatch().pauseWrite();
+            ON_STOP = true;
+        }
+
 
         super.onStop();
 
 
     }
+
+    @Override
+    protected void onResume(){
+
+        Log.d("태그", "생명주기 : onResume");
+
+        if(ON_STOP){
+
+            Log.d("태그", "onRestoreInstanceState 호출된 후에 오류날걸?");
+            stopWatchListAdapter.getItem(stopWatchListAdapter.CURSOR).getStopWatch().restartWrite();
+            ON_STOP=false;
+        }
+
+
+        super.onResume();
+    }
+
 
     @Override
     protected void onRestart() {
@@ -186,33 +220,36 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("태그", "onRestoreInstanceState");
 
-
-        int count;
-        ArrayList<String> baseTimes;
-        ArrayList<String> itemNames;
-
-        TimerListAdaptor.CURSOR = savedInstanceState.getInt(CURSOR);
-        count = savedInstanceState.getInt(COUNT);
-        baseTimes = savedInstanceState.getStringArrayList(BASE_TIME);
-        itemNames = savedInstanceState.getStringArrayList(ITEM_NAME);
+        Log.d("태그", "cursor : "+savedInstanceState.getString(CURSOR));
 
 
-        Log.d("태그", "count : " + count);
+//        int count;
+//        ArrayList<String> baseTimes;
+//        ArrayList<String> itemNames;
+//
+//        TimerListAdaptor.CURSOR = savedInstanceState.getInt(CURSOR);
+//        count = savedInstanceState.getInt(COUNT);
+//        baseTimes = savedInstanceState.getStringArrayList(BASE_TIME);
+//        itemNames = savedInstanceState.getStringArrayList(ITEM_NAME);
+//
+//
+//        Log.d("태그", "count : " + count);
+//
+//        for (int i = 0; i < count; i++) {
+//            StudyItem studyItem = new StudyItem();
+//
+//            Log.d("태그", "basetime.get(i) : " + baseTimes.get(i));
+//
+//            studyItem.getStopWatch().setInitialTime(
+//                    SystemClock.elapsedRealtime() - Long.parseLong(baseTimes.get(i)));
+//            studyItem.setItemName(itemNames.get(i));
+//            stopWatchListAdapter.addItem(studyItem);
+//            stopWatchListAdapter.notifyDataSetChanged();
+//        }
 
-        for (int i = 0; i < count; i++) {
-            StudyItem studyItem = new StudyItem();
 
-            Log.d("태그", "basetime.get(i) : " + baseTimes.get(i));
-
-            studyItem.getStopWatch().setInitialTime(
-                    SystemClock.elapsedRealtime() - Long.parseLong(baseTimes.get(i)));
-            studyItem.setItemName(itemNames.get(i));
-            stopWatchListAdapter.addItem(studyItem);
-            stopWatchListAdapter.notifyDataSetChanged();
-        }
-
-
-
+        Log.d("태그", "onRestoreInstanceState 호출 마지막 시점");
+//        stopWatchListAdapter.getItem(TimerListAdaptor.CURSOR).getStopWatch().setmTimer(stopWatchListAdapter.timerHandler);
 //        stopWatchListAdapter.getItem(TimerListAdaptor.CURSOR).getStopWatch().toggle();
 
 
@@ -223,22 +260,31 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
 
         Log.d("태그", "onsaveInstance");
-        int itemCount = stopWatchListAdapter.getCount();
-        ArrayList<String> baseTimes = new ArrayList<>();
-        ArrayList<String> itemNames = new ArrayList<>();
 
+//        int itemCount = stopWatchListAdapter.getCount();
+//
+//        if(itemCount == 0)
+//            super.onSaveInstanceState(outState);
+//
+//        ArrayList<String> baseTimes = new ArrayList<>();
+//        ArrayList<String> itemNames = new ArrayList<>();
+//        ArrayList<String> recordedTimes = new ArrayList<>();
+//
+//
+//        for (int i = 0; i < itemCount; i++) {
+//            recordedTimes.add(""+stopWatchListAdapter.getItem(i).getStopWatch().getEllapse());
+//            baseTimes.add(((Long) stopWatchListAdapter.getItem(i).getStopWatch().getBaseTime()).toString());
+//            itemNames.add(stopWatchListAdapter.getItem(i).getItemName());
+//        }
+//
+//        outState.putInt(CURSOR, TimerListAdaptor.CURSOR);
+//        outState.putInt(COUNT, itemCount);
+//        outState.putStringArrayList(BASE_TIME, baseTimes);
+//        outState.putStringArrayList(ITEM_NAME, itemNames);
 
-        for (int i = 0; i < itemCount; i++) {
-
-            Log.d("태그", "baseTIme : " + stopWatchListAdapter.getItem(i).getStopWatch().getBaseTime());
-            baseTimes.add(((Long) stopWatchListAdapter.getItem(i).getStopWatch().getBaseTime()).toString());
-            itemNames.add(stopWatchListAdapter.getItem(i).getItemName());
-        }
+        SINGLE_TON.saveTask(SingleTon.FILE_NAME);
 
         outState.putInt(CURSOR, TimerListAdaptor.CURSOR);
-        outState.putInt(COUNT, itemCount);
-        outState.putStringArrayList(BASE_TIME, baseTimes);
-        outState.putStringArrayList(ITEM_NAME, itemNames);
 
         super.onSaveInstanceState(outState);
     }
@@ -256,6 +302,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickSave(View v) {
 
 
+        //파일 저장 형태 정하기.
         long now = System.currentTimeMillis();
 
         Date date = new Date(now);
@@ -269,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //2. 삭제 (초기화)
-        stopWatchListAdapter.initialize();
+        stopWatchListAdapter.clearAdaptor();
 
 
     }
@@ -289,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("태그", "파일 경로 : " + data.getStringExtra(SingleTon.TARGET_FILE));
 
             //기존 항목들을 정리하고
-            stopWatchListAdapter.initialize();
+            stopWatchListAdapter.clearAdaptor();
 
             //저장되어있던 내용들을 가져온다.
             SINGLE_TON.loadWatchFromFile(new File(data.getStringExtra(SingleTon.TARGET_FILE)),

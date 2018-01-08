@@ -12,18 +12,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:height="80dp"
-        android:hint="새로운 항목을 입력해주세요"
+        android:layout_weight="1"
         android:maxLines="1"
+
         android:textColor="#000000" />
 
     <TextView
-        android:id="@+id/recordingTime"
+        android:id="@+id/recordedTime"
         android:layout_margin="10dp"
         android:textSize="20dp"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="right|center_vertical"
         android:textColor="#000000"
         android:onClick="toggleStopWatch"
+
         android:text="00:00:00" />
 </LinearLayout>

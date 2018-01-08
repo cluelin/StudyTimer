@@ -14,40 +14,49 @@ public class StopWatch{
     final static int RUNNING = 1;
     final static int PAUSE = 2;
 
+    //전체 스탑워치 상태를 표기.
     static int STATUS = IDLE;
 
+    //각 아이템별 스탑워치 상태를 표시.
     int instanceStatus = IDLE;//처음 상태는 IDLE
 
-    long recordingTime;
+    //측정된 시간을 저장.
+    long initialTime = 0;
 
+    //시간을 계산하기 위한 근간이 되는 시점.
     long mBaseTime;
 
+    //일시 정지 시점.
     long mPauseTime;
-
-    long initialTime = 0;
 
     Handler mTimer;
 
+    int position;
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
     public String getStringTime(long longTime){
         return String.format("%02d:%02d:%02d",
                 longTime / 1000 / 60 / 60, longTime / 1000 / 60 % 60, (longTime/1000)%60);
     }
 
-    public long getRecordingTime() {
-        return recordingTime;
-    }
-
-    public void setRecordingTime(long recordingTime) {
-        this.recordingTime = recordingTime;
+    public long getInitialTime() {
+        return initialTime;
     }
 
     public void setInitialTime(long initialTime) {
         this.initialTime = initialTime;
     }
 
+
     public void setmTimer(Handler mTimer) {
         this.mTimer = mTimer;
+    }
+
+    public void setmBaseTime(long mBaseTime) {
+        this.mBaseTime = mBaseTime;
     }
 
     public long getBaseTime() {
@@ -56,26 +65,22 @@ public class StopWatch{
 
     public void toggle(){
 
-
         //타이머의 상태에 따라서 동작이 분기됨.
         switch (instanceStatus){
             case IDLE:
                 instanceStatus = RUNNING;
                 STATUS = RUNNING;
                 mBaseTime = SystemClock.elapsedRealtime() - initialTime;
-                initialTime=0;
-                mTimer.sendEmptyMessage(0);
+                mTimer.sendEmptyMessage(position);
                 break;
             case RUNNING:
-                mTimer.removeMessages(0);
-                mPauseTime = SystemClock.elapsedRealtime();
-                instanceStatus = PAUSE;
-                STATUS = PAUSE;
+                stop();
+
                 break;
             case PAUSE:
                 mBaseTime += (SystemClock.elapsedRealtime() - mPauseTime);
 
-                mTimer.sendEmptyMessage(0);
+                mTimer.sendEmptyMessage(position);
                 STATUS = RUNNING;
                 instanceStatus = RUNNING;
                 break;
@@ -85,9 +90,25 @@ public class StopWatch{
 
     }
 
-    public long getInitialTime() {
-        return initialTime;
+    public void stop(){
+
+        mTimer.removeMessages(position);
+        mPauseTime = SystemClock.elapsedRealtime();
+        instanceStatus = PAUSE;
+        STATUS = PAUSE;
+
     }
+
+
+    public void pauseWrite(){
+        mTimer.removeMessages(position);
+
+    }
+
+    public void restartWrite(){
+        mTimer.sendEmptyMessage(position);
+    }
+
 
     long getEllapse() {
 
