@@ -10,9 +10,16 @@ import android.widget.TextView;
 public class StudyItem {
 
 
-    String itemName = null;
-    StopWatch stopWatch = new StopWatch();
+    String itemName;
+    StopWatch stopWatch;
     TextView targetStopWatch;
+
+    StudyItem(){
+
+        itemName = null;
+        stopWatch  = new StopWatch();
+        targetStopWatch = null;
+    }
 
     public String getItemName() {
         return itemName;

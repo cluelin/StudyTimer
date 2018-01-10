@@ -27,7 +27,7 @@ public class StudyService extends Service {
         //파일에 저장해둔다.
 
         SingleTon SINGLE_TON = SingleTon.getInstance();
-        SINGLE_TON.saveTask(SINGLE_TON.FILE_NAME);
-//        super.onTaskRemoved(rootIntent);
+        SINGLE_TON.saveTask(SINGLE_TON.TEMP_FILE);
+        super.onTaskRemoved(rootIntent);
     }
 }

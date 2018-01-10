@@ -2,6 +2,7 @@ package cluelin.studytimer;
 
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 
 /**
  * Created by cluel on 2017-12-10.
@@ -24,22 +25,24 @@ public class StopWatch{
     long initialTime = 0;
 
     //시간을 계산하기 위한 근간이 되는 시점.
-    long mBaseTime;
+    long mBaseTime = 0;
 
     //일시 정지 시점.
-    long mPauseTime;
+    long mPauseTime = 0;
 
     Handler mTimer;
 
     int position;
 
-    public void setPosition(int position) {
-        this.position = position;
+    public StopWatch(){
+        mTimer = TimerListAdaptor.getInstance().getTimerHandler();
+
+        if(mTimer == null)
+            Log.d("태그", "Adapter가 할당이 안됨; ");
     }
 
-    public String getStringTime(long longTime){
-        return String.format("%02d:%02d:%02d",
-                longTime / 1000 / 60 / 60, longTime / 1000 / 60 % 60, (longTime/1000)%60);
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public long getInitialTime() {
@@ -51,9 +54,6 @@ public class StopWatch{
     }
 
 
-    public void setmTimer(Handler mTimer) {
-        this.mTimer = mTimer;
-    }
 
     public void setmBaseTime(long mBaseTime) {
         this.mBaseTime = mBaseTime;
@@ -68,24 +68,50 @@ public class StopWatch{
         //타이머의 상태에 따라서 동작이 분기됨.
         switch (instanceStatus){
             case IDLE:
-                instanceStatus = RUNNING;
-                STATUS = RUNNING;
-                mBaseTime = SystemClock.elapsedRealtime() - initialTime;
-                mTimer.sendEmptyMessage(position);
+
+                initial();
+
                 break;
             case RUNNING:
                 stop();
 
                 break;
             case PAUSE:
-                mBaseTime += (SystemClock.elapsedRealtime() - mPauseTime);
 
-                mTimer.sendEmptyMessage(position);
-                STATUS = RUNNING;
-                instanceStatus = RUNNING;
+                start();
+
                 break;
         }
+    }
 
+    public void setSTATUS(int STATUS) {
+
+        Log.d("태그", position + "에서 status change : " + STATUS);
+        StopWatch.STATUS = STATUS;
+    }
+
+    public void initial(){
+
+        Log.d("태그", position + "번째 타이머 시작! initial! 초기 값 : " + initialTime);
+
+
+        mBaseTime = SystemClock.elapsedRealtime() - initialTime;
+        mTimer.sendEmptyMessage(position);
+
+        instanceStatus = RUNNING;
+
+    }
+
+    public void start(){
+
+        Log.d("태그", position + "번째 타이머 시작! start ");
+
+
+        mBaseTime += (SystemClock.elapsedRealtime() - mPauseTime);
+
+        mTimer.sendEmptyMessage(position);
+
+        instanceStatus = RUNNING;
 
 
     }
@@ -95,7 +121,6 @@ public class StopWatch{
         mTimer.removeMessages(position);
         mPauseTime = SystemClock.elapsedRealtime();
         instanceStatus = PAUSE;
-        STATUS = PAUSE;
 
     }
 
@@ -117,6 +142,23 @@ public class StopWatch{
         long ell = now - getBaseTime();//현재 시간과 지난 시간을 빼서 ell값을 구하고
 
         return ell;
+
+    }
+
+
+    //각 스톱워치에 저장된 시간을 반환.
+    long getRecordedTime(){
+
+        //mBaseTime이 초기값일 경우 초기값을 반환해주면 해결.
+        if (instanceStatus == IDLE){
+            return initialTime;
+        }
+
+        mBaseTime += (SystemClock.elapsedRealtime() - mPauseTime);
+
+        stop();
+
+        return getEllapse();
 
     }
 
