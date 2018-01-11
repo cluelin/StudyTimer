@@ -12,6 +12,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -222,12 +224,17 @@ public class MainActivity extends AppCompatActivity {
         Log.d("태그", "onRestoreInstanceState");
 
         int cursor = savedInstanceState.getInt(CURSOR);
+        long baseTime = savedInstanceState.getLong(BASE_TIME);
 
         Log.d("태그", "cursor : "+cursor);
+        Log.d("태그", "baseTime : "+baseTime);
 
-        TimerListAdaptor.CURSOR = cursor;
+        TimerListAdaptor.setCURSOR(cursor);
+        TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().setmBaseTime(baseTime);
+
+
         TimerListAdaptor.RESTORE = true;
-        Log.d("태그", "복구 되었을때 상태 : " + StopWatch.STATUS);
+
 
     }
 
@@ -237,15 +244,23 @@ public class MainActivity extends AppCompatActivity {
         Log.d("태그", "onsaveInstance");
 
         Log.d("태그", "상태 : " + StopWatch.STATUS);
-        if (StopWatch.STATUS == StopWatch.RUNNING){
+
+        int cursor = TimerListAdaptor.CURSOR;
+
+        if (cursor != -1){
 
             Log.d("태그", "CURSOR :" + TimerListAdaptor.CURSOR);
+
             outState.putInt(CURSOR, TimerListAdaptor.CURSOR);
-            StopWatch.STATUS = StopWatch.IDLE;
+
+            Log.d("태그", "cursor base time : " + TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().getBaseTime());
+            outState.putLong(BASE_TIME, TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().getBaseTime());
+
 
         }
 
-        SINGLE_TON.saveTask(SingleTon.TEMP_FILE);
+
+
         super.onSaveInstanceState(outState);
 
 

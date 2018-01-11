@@ -148,7 +148,7 @@ public class SingleTon {
                     stopWatchListAdapter.addItem(studyItem);
                 }
 
-                TimerListAdaptor.CURSOR = -1;
+                TimerListAdaptor.setCURSOR(-1);
                 stopWatchListAdapter.notifyDataSetChanged();
 
             } else

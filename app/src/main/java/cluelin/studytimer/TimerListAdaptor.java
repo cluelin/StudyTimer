@@ -38,8 +38,6 @@ public class TimerListAdaptor extends BaseAdapter {
 
             super.handleMessage(msg);
 
-            Log.d("핸들", "msg.what" + msg.what);
-
             int position = msg.what;
 
             StopWatch stopWatch = studyItems.get(position).getStopWatch();
@@ -49,7 +47,7 @@ public class TimerListAdaptor extends BaseAdapter {
 
             String sEll = getStringTime(ell);
 
-            if(sEll.compareTo(targetStopWatch.getText().toString())!=0){
+            if (sEll.compareTo(targetStopWatch.getText().toString()) != 0) {
                 targetStopWatch.setText(sEll);
                 SingleTon.getInstance().updateNotification(studyItems.get(position).itemName, sEll);
                 Log.d("태그", "핸들러 작동중 시간 sEll : " + sEll);
@@ -63,15 +61,15 @@ public class TimerListAdaptor extends BaseAdapter {
     };
 
 
-    static public TimerListAdaptor getInstance(){
-        if(instance != null)
+    static public TimerListAdaptor getInstance() {
+        if (instance != null)
             return instance;
 
         return null;
     }
 
-    static public TimerListAdaptor getInstance(Context context, int layout, ArrayList<StudyItem> studyItems){
-        if(instance == null)
+    static public TimerListAdaptor getInstance(Context context, int layout, ArrayList<StudyItem> studyItems) {
+        if (instance == null)
             instance = new TimerListAdaptor(context, layout, studyItems);
 
         return instance;
@@ -85,16 +83,16 @@ public class TimerListAdaptor extends BaseAdapter {
     }
 
 
-    public String getStringTime(long longTime){
+    public String getStringTime(long longTime) {
         return String.format("%02d:%02d:%02d",
-                longTime / 1000 / 60 / 60, longTime / 1000 / 60 % 60, (longTime/1000)%60);
+                longTime / 1000 / 60 / 60, longTime / 1000 / 60 % 60, (longTime / 1000) % 60);
     }
 
     public Handler getTimerHandler() {
         return timerHandler;
     }
 
-    public void setCursor(int cursor){
+    public static void setCURSOR(int cursor) {
         CURSOR = cursor;
         Log.d("태그", "커서 값 : " + CURSOR);
     }
@@ -125,12 +123,12 @@ public class TimerListAdaptor extends BaseAdapter {
             StopWatch stopWatch = studyItem.getStopWatch();
             stopWatch.stop();
 
-            CURSOR = -1;
+            setCURSOR(-1);
         }
 
     }
 
-    public void startCursor(){
+    public void startCursor() {
         Log.d("태그", "request start cursor : " + CURSOR);
 
         if (CURSOR != -1) {
@@ -142,13 +140,13 @@ public class TimerListAdaptor extends BaseAdapter {
     }
 
 
-    public void addItem(){
+    public void addItem() {
         studyItems.add(new StudyItem());
         //list item 변경을 알려줌.
         notifyDataSetChanged();
     }
 
-    public void addItem(StudyItem item){
+    public void addItem(StudyItem item) {
         studyItems.add(item);
         //list item 변경을 알려줌.
         notifyDataSetChanged();
@@ -169,15 +167,17 @@ public class TimerListAdaptor extends BaseAdapter {
     //특정 행을 제거함. 동작하고있는 경우 cursor도 변경해주는 작업을 해줘야함.
     public void removeItem(int position) {
 
-        if(CURSOR >= position){
-            int temp = CURSOR;
-            stopCursor();
+        int temp = CURSOR;
+        stopCursor();
 
-            if(CURSOR>position)
-                temp--;
 
-            setCursor(temp);
-        }
+        if (temp > position)
+            temp--;
+        else if (temp == position)
+            temp = -1;
+
+        setCURSOR(temp);
+        startCursor();
 
         studyItems.remove(position);
         notifyDataSetChanged();
@@ -189,7 +189,7 @@ public class TimerListAdaptor extends BaseAdapter {
 
 
     //각 행을 적어줄때 기본적인 사항을 여기서 세팅해준다.
-    void initiateRow(View convertView, final int position){
+    void initiateRow(View convertView, final int position) {
         final EditText itemNameEditText = (EditText) convertView.findViewById(R.id.itemName);
         TextView stopWatchTextView = (TextView) convertView.findViewById(R.id.recordedTime);
 
@@ -198,22 +198,22 @@ public class TimerListAdaptor extends BaseAdapter {
 
         //studyItem을 불러오기 해서 가져와잇는 경우 가지고있는 이름을 할당해주고.
         //아닐 경우 새로운 입력을 요구.
-        if(studyItem.getItemName() == null)
+        if (studyItem.getItemName() == null)
             itemNameEditText.setHint("새로운 항목을 입력해주세요.");
         else
             itemNameEditText.setText(studyItem.getItemName());
 
-        Log.d("태그", "상태 : " +StopWatch.STATUS);
+        Log.d("태그", "상태 : " + StopWatch.STATUS);
 
         //position 이랑 커서가 다를때만 되게해놧는데.. 이거 어디서 에러처리한거더라.
         //나중에 필요할때 다시 가져다가 써야됨.
-        if(position != CURSOR){
+        if (position != CURSOR) {
             //각항목이 가지고있는 initial 타임을 설정해준다. 기본적으로는 0이고
             //불러오기해서 가져오는 경우 저장된 타임이 초기값으로 등록된다.
             long recordedTime = studyItem.getStopWatch().getRecordedTime();
             String sEll = getStringTime(recordedTime);
             stopWatchTextView.setText(sEll);
-            Log.d("태그", "initial Time : "  + sEll);
+            Log.d("태그", "initial Time : " + sEll);
         }
 
 
@@ -266,7 +266,7 @@ public class TimerListAdaptor extends BaseAdapter {
         });
     }
 
-    public void onClickTimer(int position){
+    public void onClickTimer(int position) {
         StopWatch stopWatch = ((StudyItem) getItem(position)).getStopWatch();
 
         Log.d("태그", "onclick stopwatch position : " + position);
@@ -279,12 +279,13 @@ public class TimerListAdaptor extends BaseAdapter {
             stopCursor();
             //현재값을 커서로 지정해주고.
             //현재 타이머를 작동시킨다.
-            CURSOR = position;
+            setCURSOR(position);
             stopWatch.setSTATUS(StopWatch.RUNNING);
             SingleTon.getInstance().notificationStopWatch();
-        }else{
+        } else {
             //커서랑 포지션이 일치할때 정지.
             stopWatch.setSTATUS(StopWatch.PAUSE);
+            setCURSOR(-1);
             SingleTon.getInstance().removeNotification();
 
         }
@@ -301,7 +302,7 @@ public class TimerListAdaptor extends BaseAdapter {
             convertView = inf.inflate(layout, null);
         }
 
-        Log.d("태그", "getview 호출 시점" );
+        Log.d("태그", "getview 호출 시점");
 
         //각 뷰의 초기 설정을 해준다.
         //저장된것에서 불려져서 초기값이 잇을경우 초기값으로 보이게해준다.
@@ -310,11 +311,13 @@ public class TimerListAdaptor extends BaseAdapter {
 
         //복구되면 다시 스톱워치 실행 실행해야함.
         //개 더러운 코드 ㅈㅅ.
-        if (RESTORE && position + 1 == getCount()){
+        if (RESTORE && position + 1 == getCount()) {
             Log.d("태그", "리스토어됨.");
 
             StopWatch stopWatch = ((StudyItem) getItem(CURSOR)).getStopWatch();
-            stopWatch.initial();
+
+            Log.d("태그", "base time :" + stopWatch.getBaseTime());
+            timerHandler.sendEmptyMessage(CURSOR);
             stopWatch.setSTATUS(StopWatch.RUNNING);
             RESTORE = false;
 
@@ -322,8 +325,6 @@ public class TimerListAdaptor extends BaseAdapter {
 
         return convertView;
     }
-
-
 
 
 }
