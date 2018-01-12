@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     final String COUNT = "COUNT";
     final String BASE_TIME = "BASE_TIME";
     final String ITEM_NAME = "itemName";
-
+    final String RECORDED_TIME = "recorded";
 
     //로그 파일 저장 경로
     final String LOG_DIR = "log";
@@ -224,18 +224,51 @@ public class MainActivity extends AppCompatActivity {
         Log.d("태그", "onRestoreInstanceState");
 
         int cursor = savedInstanceState.getInt(CURSOR);
-        long baseTime = savedInstanceState.getLong(BASE_TIME);
-
-        Log.d("태그", "cursor : "+cursor);
-        Log.d("태그", "baseTime : "+baseTime);
-
-        TimerListAdaptor.setCURSOR(cursor);
-        TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().setmBaseTime(baseTime);
 
 
-        TimerListAdaptor.RESTORE = true;
+        //만약에 count가 0이면 실행종료.
+        if (!loadFromBundle(savedInstanceState))
+            return;
+
+        if(cursor != -1){
+            long baseTime = savedInstanceState.getLong(BASE_TIME);
+
+            Log.d("태그", "cursor : "+cursor);
+            Log.d("태그", "baseTime : "+baseTime);
+
+            TimerListAdaptor.setCURSOR(cursor);
+            TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().setmBaseTime(baseTime);
+
+            TimerListAdaptor.RESTORE = true;
+        }
 
 
+
+
+    }
+
+    private boolean loadFromBundle(Bundle savedInstanceState){
+
+        int count = savedInstanceState.getInt(COUNT);
+
+        if (count == 0)
+            return false;
+
+        ArrayList<String> itemNames = savedInstanceState.getStringArrayList(ITEM_NAME);
+        long[] recordedTimes = savedInstanceState.getLongArray(RECORDED_TIME);
+
+
+        for(int i = 0 ; i < count ; i++){
+            StudyItem studyItem = new StudyItem();
+            studyItem.setItemName(itemNames.get(i));
+            studyItem.getStopWatch().setInitialTime(recordedTimes[i]);
+
+            stopWatchListAdapter.addItem(studyItem);
+        }
+
+        stopWatchListAdapter.notifyDataSetChanged();
+
+        return true;
     }
 
     @Override
@@ -246,24 +279,51 @@ public class MainActivity extends AppCompatActivity {
         Log.d("태그", "상태 : " + StopWatch.STATUS);
 
         int cursor = TimerListAdaptor.CURSOR;
+        Log.d("태그", "CURSOR :" + cursor);
+        outState.putInt(CURSOR, cursor);
 
+        //타이머 진행중일때
         if (cursor != -1){
-
-            Log.d("태그", "CURSOR :" + TimerListAdaptor.CURSOR);
-
-            outState.putInt(CURSOR, TimerListAdaptor.CURSOR);
+            //동작 중인 타이머의 base time을 저장하여 복원을 꾀한다.
 
             Log.d("태그", "cursor base time : " + TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().getBaseTime());
             outState.putLong(BASE_TIME, TimerListAdaptor.getInstance().getItem(cursor).getStopWatch().getBaseTime());
+        }
+
+        saveWithoutCursor(outState, cursor);
+
+
+
+        super.onSaveInstanceState(outState);
+    }
+
+
+    public void saveWithoutCursor(Bundle outState, int cursor){
+
+        int count = stopWatchListAdapter.getCount();
+
+        ArrayList<String> itemNames = new ArrayList<>();
+//        ArrayList<Long> recordedTimes = new ArrayList<>();
+        long[] recordedTimes = new long[count];
+
+
+        outState.putInt(COUNT, count);
+        if(count == 0)
+            return;
+
+        for(int i = 0 ; i < count ; i++){
+            itemNames.add(stopWatchListAdapter.getItem(i).getItemName());
+            if(i != cursor)
+                recordedTimes[i] = (stopWatchListAdapter.getItem(i).getStopWatch().getRecordedTime());
+            else
+                recordedTimes[i] = (long)0;
 
 
         }
 
 
-
-        super.onSaveInstanceState(outState);
-
-
+        outState.putStringArrayList(ITEM_NAME, itemNames);
+        outState.putLongArray(RECORDED_TIME, recordedTimes);
 
     }
 

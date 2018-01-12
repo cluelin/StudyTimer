@@ -188,7 +188,7 @@ public class SingleTon {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             builder.setCategory(Notification.CATEGORY_MESSAGE)
-                    .setPriority(Notification.PRIORITY_MIN)
+                    .setPriority(Notification.PRIORITY_LOW)
                     .setVisibility(Notification.VISIBILITY_PUBLIC);
         }
 
