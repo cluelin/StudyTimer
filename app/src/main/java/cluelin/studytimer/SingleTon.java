@@ -124,6 +124,8 @@ public class SingleTon {
 
             if (file.exists()) {
 
+                stopWatchListAdapter.clearAdaptor();
+
                 //항목 카운트
                 //이름
                 //기록된 시간.
