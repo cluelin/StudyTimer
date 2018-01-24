@@ -54,8 +54,8 @@ public class TimerListAdaptor extends BaseAdapter {
                 Log.d("태그", "핸들러 작동중 시간 targetStopWatch.getText() : " + targetStopWatch.getText());
             }
 
-            //메시지를 다시 보낸다.
             timerHandler.sendEmptyMessage(position);//0은 메시지를 구분하기 위한 것
+
 
         }
     };
@@ -97,6 +97,13 @@ public class TimerListAdaptor extends BaseAdapter {
         Log.d("태그", "커서 값 : " + CURSOR);
     }
 
+    public static boolean getTimerRun(){
+        if(CURSOR != -1)
+            return true;
+        else
+            return false;
+    }
+
     @Override
     public int getCount() {
         return studyItems.size();
@@ -118,7 +125,7 @@ public class TimerListAdaptor extends BaseAdapter {
 
         Log.d("태그", "request stop cursor : " + CURSOR);
 
-        if (CURSOR != -1) {
+        if (getTimerRun()) {
             StudyItem studyItem = (StudyItem) getItem(CURSOR);
             StopWatch stopWatch = studyItem.getStopWatch();
             stopWatch.stop();
@@ -244,7 +251,14 @@ public class TimerListAdaptor extends BaseAdapter {
             }
         });
 
+        itemNameEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
+
+//
         //이거해야지 행 클릭했을때의 long click이 동작하더라.. 행 삭제용으로 만들어둠.
         stopWatchTextView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

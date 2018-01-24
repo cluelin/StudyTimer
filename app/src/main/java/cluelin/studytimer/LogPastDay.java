@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -16,6 +18,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LogPastDay extends AppCompatActivity {
@@ -26,58 +29,57 @@ public class LogPastDay extends AppCompatActivity {
         setContentView(R.layout.activity_log);
 
 
-        final LinearLayout linearLayout = (LinearLayout) findViewById(R.id.logLayout);
+        final File fileList[] = new File(this.getFilesDir(), "/log").listFiles();
 
-        //파일이 저장되는지 알아보기 위한 코드
+        final ListView logListView = (ListView) findViewById(R.id.logList);
 
-        File fileList[] = new File(this.getFilesDir(), "/log").listFiles();
+        final ArrayList<String> listItems = new ArrayList<String>();
+
+        final ArrayAdapter adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                listItems);
+
+
+        logListView.setAdapter(adapter);
+
+
 
 
         for (int i = 0; i < fileList.length; i++) {
 
-            Log.d("태그", "파일 명 : " + fileList[i].getName());
+            listItems.add(fileList[i].getName());
 
-            final File targetFile = fileList[i];
-            final TextView textView = new TextView(this);
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-            params.height = 100;
-
-            textView.setLayoutParams(params);
-
-            Log.d("태그", "param 내용 : " +  params);
-
-
-
-            textView.setText("" + fileList[i].getName());
-
-
-            textView.setOnClickListener(new View.OnClickListener() {
+            logListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onClick(View v) {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    Log.d("태그", "Log onClick");
+
+                    File targetFile = fileList[position];
 
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra(SingleTon.TARGET_FILE, targetFile.getAbsolutePath());
                     setResult(SingleTon.LOAD_PREVIOUS_STOP_WATCH, returnIntent);
                     finish();
-
                 }
             });
 
-            textView.setOnLongClickListener(new View.OnLongClickListener() {
+            logListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
-                public boolean onLongClick(View v) {
+                public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
+                    Log.d("태그", "Log onLongCLick");
 
                     AlertDialog.Builder alert_confirm = new AlertDialog.Builder(LogPastDay.this);
                     alert_confirm.setMessage("삭제?").setCancelable(false).setPositiveButton("확인",
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+
+                                    File targetFile = fileList[position];
+
                                     targetFile.delete();
-                                    linearLayout.removeView(textView);
+                                    listItems.remove(position);
+                                    adapter.notifyDataSetChanged();
                                 }
                             }).setNegativeButton("취소",
                             new DialogInterface.OnClickListener() {
@@ -90,15 +92,16 @@ public class LogPastDay extends AppCompatActivity {
                     AlertDialog alert = alert_confirm.create();
                     alert.show();
 
-
-                    return false;
+                    return true;
                 }
             });
 
-            linearLayout.addView(textView);
+
+
 
         }
 
+        adapter.notifyDataSetChanged();
 
     }
 }

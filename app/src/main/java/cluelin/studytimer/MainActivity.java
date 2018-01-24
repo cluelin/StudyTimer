@@ -87,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
 
         //리스트 어댑터 만들어서 리스트에 할당.
         ArrayList<StudyItem> stopWatchItems = new ArrayList<>();
-        stopWatchListAdapter = TimerListAdaptor.getInstance(this, R.layout.new_stopwatch_item, stopWatchItems);
+        stopWatchListAdapter = TimerListAdaptor.getInstance(this,
+                R.layout.new_stopwatch_item, stopWatchItems);
 
         ListView stopWatchListView = (ListView) findViewById(R.id.stopwatch_list_view);
         stopWatchListView.setAdapter(stopWatchListAdapter);
@@ -98,29 +99,34 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-                Log.d("태그", "행에서 롱클릭");
-                AlertDialog.Builder alert_confirm = new AlertDialog.Builder(MainActivity.this);
-                alert_confirm.setMessage("삭제?").setCancelable(false).setPositiveButton("확인",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                stopWatchListAdapter.removeItem(position);
-                            }
-                        }).setNegativeButton("취소",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // 'No'
-                                return;
-                            }
-                        });
-                AlertDialog alert = alert_confirm.create();
-                alert.show();
-                return false;
+                deleteTimerItem(position);
+                return true;
             }
         });
 
         handler = stopWatchListAdapter.getTimerHandler();
+    }
+
+    public void deleteTimerItem(final int position){
+
+        Log.d("태그", "행에서 롱클릭");
+        AlertDialog.Builder alert_confirm = new AlertDialog.Builder(MainActivity.this);
+        alert_confirm.setMessage("삭제?").setCancelable(false).setPositiveButton("확인",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        stopWatchListAdapter.removeItem(position);
+                    }
+                }).setNegativeButton("취소",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 'No'
+                        return;
+                    }
+                });
+        AlertDialog alert = alert_confirm.create();
+        alert.show();
     }
 
     @Override
@@ -132,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //타이머가 동작중이면 종료 안하게끔.
-        if (StopWatch.STATUS == StopWatch.RUNNING) {
+        if (TimerListAdaptor.getTimerRun()) {
             //종료 안하고 홈으로 가기.
             Log.d("태그", "스톱워치 동작중 진행.");
             moveTaskToBack(true);
@@ -326,6 +332,8 @@ public class MainActivity extends AppCompatActivity {
 
     //on touch event Handler Add Item on XML.
     public void onClickAddItem(View v) {
+
+        Log.d("태그", "addItem 호출 ");
 
         stopWatchListAdapter.addItem();
 

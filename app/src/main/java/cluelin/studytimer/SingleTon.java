@@ -177,13 +177,8 @@ public class SingleTon {
 
         builder = new NotificationCompat.Builder(context);
 
-        builder.setContentTitle("상태바 드래그시 보이는 타이틀")
-                .setContentText("상태바 드래그시 보이는 서브타이틀")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(res, R.mipmap.ic_launcher))
+        builder.setSmallIcon(R.drawable.ic_stat_stopwatch)
                 .setContentIntent(contentIntent)
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis())
                 .setOngoing(true);
 
 

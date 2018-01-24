@@ -87,7 +87,7 @@ public class StopWatch{
     public void setSTATUS(int STATUS) {
 
         Log.d("태그", position + "에서 status change : " + STATUS);
-        StopWatch.STATUS = STATUS;
+        this.STATUS = STATUS;
     }
 
     public void initial(){
